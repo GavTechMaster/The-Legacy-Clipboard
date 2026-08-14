@@ -1,2 +1,3 @@
 # The Legacy Clipboard
-Clipboard Manager GUI to easily store and remember _text_, _images_, and _files_
+## Supported on Windows, MacOS, and Linux Distributions
+Clipboard Manager GUI to easily store and remember **text**, **images**, and **files**
