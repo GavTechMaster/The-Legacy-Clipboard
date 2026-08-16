@@ -661,7 +661,7 @@ public class App extends Application {
             }
         });
         linkToGithub.setOnAction(linked -> {
-            getHostServices().showDocument("https://github.com");
+            getHostServices().showDocument("https://github.com/GavTechMaster/The-Legacy-Clipboard");
         });
         continueButton.setOnMouseEntered(hovered -> {
             if (!continueButton.isDisabled()) {
