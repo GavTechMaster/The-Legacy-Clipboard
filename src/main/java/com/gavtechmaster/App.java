@@ -1089,6 +1089,24 @@ public class App extends Application {
         notificationsBox.setOnMouseExited(notHovered -> {
             notificationsBox.setCursor(Cursor.DEFAULT);
         });
+        notificationsBox.setOnAction(pressed -> {
+            // Prompts user to manually toggle the notification permission
+            try {
+                if (notificationsBox.isSelected()) {
+                    int osVersion = Integer.parseInt(System.getProperty("os.version").split("\\.")[0]);
+                    if (osVersion >= 13) {
+                        ProcessBuilder modernOpenSystem = new ProcessBuilder("open", "x-apple.systempreferences:com.apple.Notifications-Settings.extension");
+                        modernOpenSystem.start();
+                    } else if (osVersion == 12) {
+                        ProcessBuilder montereyOpenSystem = new ProcessBuilder("open", "x-apple.systempreferences:com.apple.preference.notifications?Notifications");
+                        montereyOpenSystem.start();
+                    } else {
+                        ProcessBuilder legacyOperatingSystem = new ProcessBuilder("open", "x-apple.systempreferences:com.apple.preference.notifications");
+                        legacyOperatingSystem.start();               
+                    }
+                }
+            } catch (IOException ioError) {}
+        });
         KeyFrame setNotificationsBG = new KeyFrame(Duration.millis(100), copyNotifications -> {
             Platform.runLater(() -> {
                 Region copyNotificationsBG = (Region) notificationsBox.lookup(".box");
@@ -1334,25 +1352,11 @@ public class App extends Application {
                         stringList.add(systemClipboard.getString());
                         copiedListSet.addFirst(systemClipboard.getString());
                         if ((boolean) userPreferences.get("notifications_on")) {
-                            try {
-                                if (currentOS() == OS.WINDOWS || currentOS() == OS.LINUX) {
-                                    legacyTrayIcon.displayMessage(
-                                    "The Legacy Clipboard",
-                                    "Text has been copied!",
-                                    MessageType.INFO
-                                    );
-                                } else if (currentOS() == OS.MACOS) {
-                                    String script = "display notification \"Text has been copied!\" with title \"The Legacy Clipboard\"";
-                                    ProcessBuilder notificationBuilder = new ProcessBuilder(
-                                        "osascript",
-                                        "-e",
-                                        script
-                                        );
-                                    notificationBuilder.start();
-                                }
-                            } catch (Exception allErrors) {
-                                notificationsBox.setSelected(false);
-                            } // Purposely did ALL exceptions
+                            legacyTrayIcon.displayMessage(
+                            "The Legacy Clipboard",
+                            "Text has been copied!",
+                            MessageType.INFO
+                            );
                         }
                     }
                 } else if (!(boolean) userPreferences.get("copy_text") && systemClipboard.hasString() || !(boolean) userPreferences.get("clipboard_enabled") && systemClipboard.hasString()) {
@@ -1383,25 +1387,11 @@ public class App extends Application {
                                 copiedListSet.addFirst(imageBytes);
                             } catch (IOException ioError) {}
                             if ((boolean) userPreferences.get("notifications_on")) {
-                                try {
-                                    if (currentOS() == OS.WINDOWS || currentOS() == OS.LINUX) {
-                                        legacyTrayIcon.displayMessage(
-                                        "The Legacy Clipboard",
-                                        "An image has been copied!",
-                                            MessageType.INFO
-                                        );
-                                    } else if (currentOS() == OS.MACOS) {
-                                        String script = "display notification \"An image has been copied!\" with title \"The Legacy Clipboard\"";
-                                        ProcessBuilder notificationBuilder = new ProcessBuilder(
-                                        "osascript",
-                                            "-e",
-                                            script
-                                        );
-                                        notificationBuilder.start();
-                                    }
-                                } catch (Exception allErrors) {
-                                    notificationsBox.setSelected(false);
-                                } // Purposely did ALL exceptions
+                                legacyTrayIcon.displayMessage(
+                                "The Legacy Clipboard",
+                                "An image has been copied!",
+                                    MessageType.INFO
+                                );
                             }
                         }
                     } else {
@@ -1416,25 +1406,11 @@ public class App extends Application {
                             copiedListSet.addFirst(imageBytes);
                         } catch (IOException ioError) {}
                         if ((boolean) userPreferences.get("notifications_on")) {
-                            try {
-                                if (currentOS() == OS.WINDOWS || currentOS() == OS.LINUX) {
-                                    legacyTrayIcon.displayMessage(
-                                "The Legacy Clipboard",
-                                "An image has been copied!",
-                                    MessageType.INFO
-                                    );
-                                } else if (currentOS() == OS.MACOS) {
-                                    String script = "display notification \"An image has been copied!\" with title \"The Legacy Clipboard\"";
-                                    ProcessBuilder notificationBuilder = new ProcessBuilder(
-                                        "osascript",
-                                        "-e",
-                                        script
-                                        );
-                                    notificationBuilder.start();
-                                }
-                            } catch (Exception allErrors) {
-                                notificationsBox.setSelected(false);
-                            } // Purposely did ALL exceptions
+                            legacyTrayIcon.displayMessage(
+                        "The Legacy Clipboard",
+                        "An image has been copied!",
+                            MessageType.INFO
+                            );
                         }
                     }
                 } else if (!(boolean) userPreferences.get("copy_images") && systemClipboard.hasImage() || !(boolean) userPreferences.get("clipboard_enabled") && systemClipboard.hasImage()) {
@@ -1452,23 +1428,11 @@ public class App extends Application {
                         filesList.add(systemClipboard.getFiles());
                         copiedListSet.addFirst(new ArrayList<File>(systemClipboard.getFiles()));
                         if ((boolean) userPreferences.get("notifications_on")) {
-                            try {
-                                if (currentOS() == OS.WINDOWS) {
-                                    legacyTrayIcon.displayMessage(
-                                    "Legacy Clipboard",
-                                        String.format("%d File(s)/Dir(s) have been copied!", systemClipboard.getFiles().size()),
-                                        MessageType.INFO
-                                    );
-                                } else if (currentOS() == OS.MACOS) {
-                                    String script = String.format("display notification \"%d File(s)/Dir(s) have been copied!\" with title \"The Legacy Clipboard\"", systemClipboard.getFiles().size());
-                                    ProcessBuilder notificationBuilder = new ProcessBuilder(
-                                        "osascript",
-                                        "-e",
-                                        script
-                                        );
-                                    notificationBuilder.start();
-                                }
-                            } catch (Exception allErrors) {} // Purposely did ALL exceptions
+                            legacyTrayIcon.displayMessage(
+                            "Legacy Clipboard",
+                                String.format("%d File(s)/Dir(s) have been copied!", systemClipboard.getFiles().size()),
+                                MessageType.INFO
+                            );
                         }
                     }
                 } else if (!(boolean) userPreferences.get("copy_files") && systemClipboard.hasFiles() || !(boolean) userPreferences.get("clipboard_enabled") && systemClipboard.hasFiles()) {
