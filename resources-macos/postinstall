@@ -1,0 +1,50 @@
+
+currentUser=$(stat -f "%Su" /dev/console)
+
+if [ -z "$currentUser" ] || [ "$currentUser" = "root" ] || [ "$currentUser" = "loginwindow" ]; then
+    exit 0
+fi
+
+currentUID=$(id -u "$currentUser")
+currentHome=$(dscl . -read "/Users/$currentUser" NFSHomeDirectory | awk '{print $2}')
+
+launchAgentLocation="$currentHome/Library/LaunchAgents"
+legacyPlist="$launchAgentLocation/com.gavtechmaster.legacyboard.plist"
+
+mkdir -p "$launchAgentLocation"
+
+cat > "$legacyPlist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+
+<plist version="1.0">
+<dict>
+
+    <key>Label</key>
+    <string>com.gavtechmaster.legacyboard</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Applications/The Legacy Clipboard.app/Contents/MacOS/The Legacy Clipboard</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+</dict>
+</plist>
+EOF
+
+chown "$currentUser:staff" "$legacyPlist"
+chmod 644 "$PLIST_FILE"
+
+/usr/bin/plutil -lint "$legacyPlist"
+
+/bin/launchctl bootout "gui/$currentUID" "$legacyPlist" 2>/dev/null
+
+/bin/launchctl bootstrap "gui/$currentUID" "$legacyPlist"
+
+/bin/launchctl enable "gui/$currentUID/com.gavtechmaster.legacyboard"
+
+exit 0
