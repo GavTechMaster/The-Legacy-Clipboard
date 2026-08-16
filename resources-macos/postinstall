@@ -37,7 +37,7 @@ cat > "$legacyPlist" <<EOF
 EOF
 
 chown "$currentUser:staff" "$legacyPlist"
-chmod 644 "$PLIST_FILE"
+chmod 644 "$legacyPlist"
 
 /usr/bin/plutil -lint "$legacyPlist"
 
